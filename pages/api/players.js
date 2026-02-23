@@ -13,7 +13,7 @@ function getCurrentSeason() {
 
 export default async function handler(req, res) {
   try {
-    const { q, team, position, minHeight, maxHeight } = req.query;
+    const { q, team, position, minHeight, maxHeight, minFollowers, maxFollowers } = req.query;
     const where = {};
     if (q != null && String(q).trim() !== "") {
       where.name = { contains: String(q).trim(), mode: "insensitive" };
@@ -42,6 +42,22 @@ export default async function handler(req, res) {
         where.heightInches = where.heightInches || {};
         where.heightInches.lte = n;
       }
+    }
+    const minF =
+      minFollowers != null && String(minFollowers).trim() !== ""
+        ? parseInt(String(minFollowers).trim(), 10)
+        : null;
+    const maxF =
+      maxFollowers != null && String(maxFollowers).trim() !== ""
+        ? parseInt(String(maxFollowers).trim(), 10)
+        : null;
+    if (minF != null && !Number.isNaN(minF) && minF >= 0) {
+      where.followers = where.followers || {};
+      where.followers.gte = minF;
+    }
+    if (maxF != null && !Number.isNaN(maxF) && maxF >= 0) {
+      where.followers = where.followers || {};
+      where.followers.lte = maxF;
     }
 
     const players = await prisma.player.findMany({

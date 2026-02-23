@@ -1,5 +1,22 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import Link from "next/link";
+
+const FOLLOWERS_DEBOUNCE_MS = 300;
+
+function parseFollowersInput(str) {
+  if (str == null || typeof str !== "string") return null;
+  const t = str.trim();
+  if (t === "") return null;
+  const m = t.match(/^([\d.]+)\s*([kmb])?$/i);
+  if (!m) return null;
+  let n = parseFloat(m[1], 10);
+  if (Number.isNaN(n) || n < 0) return null;
+  const suffix = (m[2] || "").toLowerCase();
+  if (suffix === "k") n *= 1e3;
+  else if (suffix === "m") n *= 1e6;
+  else if (suffix === "b") n *= 1e9;
+  return Math.round(n);
+}
 
 function inchToLabel(inches) {
   if (inches == null) return "Any";
@@ -18,6 +35,11 @@ export default function Home() {
   const [position, setPosition] = useState("");
   const [minHeight, setMinHeight] = useState("");
   const [maxHeight, setMaxHeight] = useState("");
+  const [minFollowers, setMinFollowers] = useState("");
+  const [maxFollowers, setMaxFollowers] = useState("");
+  const [minFollowersQuery, setMinFollowersQuery] = useState("");
+  const [maxFollowersQuery, setMaxFollowersQuery] = useState("");
+  const followersDebounceRef = useRef(null);
 
   const fetchPlayers = useCallback(() => {
     const params = new URLSearchParams();
@@ -26,7 +48,18 @@ export default function Home() {
     if (position) params.set("position", position);
     if (minHeight !== "") params.set("minHeight", minHeight);
     if (maxHeight !== "") params.set("maxHeight", maxHeight);
-    const isFullList = !search.trim() && !team && !position && minHeight === "" && maxHeight === "";
+    const minF = parseFollowersInput(minFollowersQuery);
+    const maxF = parseFollowersInput(maxFollowersQuery);
+    if (minF != null) params.set("minFollowers", String(minF));
+    if (maxF != null) params.set("maxFollowers", String(maxF));
+    const isFullList =
+      !search.trim() &&
+      !team &&
+      !position &&
+      minHeight === "" &&
+      maxHeight === "" &&
+      minF == null &&
+      maxF == null;
     setLoading(true);
     setError(null);
     fetch(`/api/players?${params.toString()}`)
@@ -54,7 +87,19 @@ export default function Home() {
       .finally(() => {
         setLoading(false);
       });
-  }, [search, team, position, minHeight, maxHeight]);
+  }, [search, team, position, minHeight, maxHeight, minFollowersQuery, maxFollowersQuery]);
+
+  useEffect(() => {
+    if (followersDebounceRef.current) clearTimeout(followersDebounceRef.current);
+    followersDebounceRef.current = setTimeout(() => {
+      setMinFollowersQuery(minFollowers);
+      setMaxFollowersQuery(maxFollowers);
+      followersDebounceRef.current = null;
+    }, FOLLOWERS_DEBOUNCE_MS);
+    return () => {
+      if (followersDebounceRef.current) clearTimeout(followersDebounceRef.current);
+    };
+  }, [minFollowers, maxFollowers]);
 
   useEffect(() => {
     fetch("/api/players/facets")
@@ -152,6 +197,30 @@ export default function Home() {
               </option>
             ))}
           </select>
+          <input
+            type="text"
+            inputMode="numeric"
+            className="filter-input"
+            placeholder="Min followers (e.g. 10k, 20M)"
+            value={minFollowers}
+            onChange={(e) => {
+              const v = e.target.value;
+              if (v === "" || /^\d*\.?\d*[kmb]?$/i.test(v)) setMinFollowers(v);
+            }}
+            aria-label="Min followers"
+          />
+          <input
+            type="text"
+            inputMode="numeric"
+            className="filter-input"
+            placeholder="Max followers (e.g. 10k, 20M)"
+            value={maxFollowers}
+            onChange={(e) => {
+              const v = e.target.value;
+              if (v === "" || /^\d*\.?\d*[kmb]?$/i.test(v)) setMaxFollowers(v);
+            }}
+            aria-label="Max followers"
+          />
         </div>
       </header>
 
@@ -250,13 +319,22 @@ export default function Home() {
           border-color: #0066cc;
           box-shadow: 0 0 0 2px rgba(0, 102, 204, 0.2);
         }
-        .filter-select {
+        .filter-select,
+        .filter-input {
           padding: 0.5rem 0.6rem;
           font-size: 0.9rem;
           border: 1px solid #ccc;
           border-radius: 6px;
           background: #fff;
           min-width: 6rem;
+        }
+        .filter-input {
+          width: 7rem;
+        }
+        .filter-input::-webkit-outer-spin-button,
+        .filter-input::-webkit-inner-spin-button {
+          -webkit-appearance: none;
+          margin: 0;
         }
         .main {
           padding: 1.5rem;
