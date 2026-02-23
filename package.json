@@ -1,0 +1,31 @@
+{
+  "name": "nba-players",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "next lint",
+    "seed": "node prisma/seed.js",
+    "seed:players": "node prisma/seedPlayers.js",
+    "enrich:players": "node prisma/enrichPlayers.js",
+    "enrich:roster": "node prisma/enrichRoster.js",
+    "scrape-instagram": "node scripts/scrape-instagram.js"
+  },
+  "dependencies": {
+    "@prisma/adapter-pg": "^7.4.1",
+    "@prisma/client": "^7.4.1",
+    "csv-parse": "^5.6.0",
+    "dotenv": "^17.3.1",
+    "next": "14.2.19",
+    "pg": "^8.18.0",
+    "prisma": "^7.4.1",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "selenium-webdriver": "^4.41.0"
+  },
+  "devDependencies": {
+    "tsx": "^4.7.0"
+  }
+}

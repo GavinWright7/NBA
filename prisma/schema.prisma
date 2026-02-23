@@ -1,0 +1,36 @@
+generator client {
+  provider = "prisma-client-js"
+  output   = "../generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model Player {
+  id             String   @id @default(cuid())
+  name           String
+  team           String?
+  position       String?
+  positionRaw    String?
+  positionNorm   String?
+  nbaPersonId    String   @unique
+  instagram      String?
+  heightInches   Int?
+  heightText     String?
+
+  followers      Int?
+  following      Int?
+  avgLikes       Int?
+  avgComments    Int?
+  engagementRate Float?
+  instagramUpdatedAt DateTime?
+
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  @@index([team])
+  @@index([name])
+  @@index([position])
+  @@index([heightInches])
+}
