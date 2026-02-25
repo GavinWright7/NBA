@@ -11,7 +11,9 @@
     "seed:players": "node prisma/seedPlayers.js",
     "enrich:players": "node prisma/enrichPlayers.js",
     "enrich:roster": "node prisma/enrichRoster.js",
-    "scrape-instagram": "node scripts/scrape-instagram.js"
+    "scrape-instagram": "node scripts/scrape-instagram.js",
+    "partnerships:import": "node prisma/importThink45OPartnerships.js data/confidential_data.csv",
+    "ig:partnerships:import": "node prisma/importThink45OPartnerships.js data/THINK45O_player_activation_full.csv"
   },
   "dependencies": {
     "@prisma/adapter-pg": "^7.4.1",

@@ -126,6 +126,55 @@ export default function PlayerPage() {
                   </p>
                 )}
               </section>
+
+              <section className="partnerships-section" aria-label="Past partnerships">
+                <h2 className="partnerships-title">Past Partnerships</h2>
+                {player.partnerships && player.partnerships.length > 0 ? (
+                  <ul className="partnerships-list">
+                    {player.partnerships.map((p) => (
+                      <li key={p.id} className="partnership-card">
+                        <div className="partnership-brand">{p.brand}</div>
+                        <dl className="partnership-details">
+                          <div className="partnership-row">
+                            <dt>Dates</dt>
+                            <dd>{p.dates || "—"}</dd>
+                          </div>
+                          <div className="partnership-row">
+                            <dt>Type of Activation</dt>
+                            <dd>{p.activationType || "—"}</dd>
+                          </div>
+                          {p.distribution && (
+                            <div className="partnership-row">
+                              <dt>Distribution</dt>
+                              <dd>{p.distribution}</dd>
+                            </div>
+                          )}
+                          {p.additionalNotes && (
+                            <div className="partnership-row">
+                              <dt>Additional Notes</dt>
+                              <dd>{p.additionalNotes}</dd>
+                            </div>
+                          )}
+                          {p.playerFee && (
+                            <div className="partnership-row">
+                              <dt>Player Fee</dt>
+                              <dd>{p.playerFee}</dd>
+                            </div>
+                          )}
+                        </dl>
+                      </li>
+                    ))}
+                  </ul>
+                ) : (
+                  <p className="partnerships-empty">No partnerships yet.</p>
+                )}
+              </section>
+
+              <div className="profile-actions">
+                <Link href={`/player/${player.id}/review`} className="review-link">
+                  Player Review →
+                </Link>
+              </div>
             </div>
           </div>
         )}
@@ -248,6 +297,78 @@ export default function PlayerPage() {
           margin: 0;
           color: #888;
           font-size: 0.9rem;
+        }
+        .partnerships-section {
+          margin-top: 1.5rem;
+          padding-top: 1.5rem;
+          border-top: 1px solid #eee;
+        }
+        .partnerships-title {
+          margin: 0 0 0.75rem 0;
+          font-size: 1.1rem;
+          font-weight: 600;
+        }
+        .partnerships-list {
+          list-style: none;
+          margin: 0;
+          padding: 0;
+          display: flex;
+          flex-direction: column;
+          gap: 1rem;
+        }
+        .partnership-card {
+          background: #f9f9f9;
+          border-radius: 6px;
+          padding: 1rem;
+          border: 1px solid #eee;
+        }
+        .partnership-brand {
+          font-weight: 600;
+          font-size: 1rem;
+          margin-bottom: 0.5rem;
+          color: #111;
+        }
+        .partnership-details {
+          margin: 0;
+          display: flex;
+          flex-direction: column;
+          gap: 0.25rem;
+        }
+        .partnership-row {
+          display: grid;
+          grid-template-columns: 10rem 1fr;
+          gap: 0.5rem;
+          align-items: baseline;
+        }
+        .partnership-row dt {
+          margin: 0;
+          color: #555;
+          font-weight: 500;
+          font-size: 0.85rem;
+        }
+        .partnership-row dd {
+          margin: 0;
+          font-size: 0.9rem;
+        }
+        .partnerships-empty {
+          margin: 0;
+          color: #888;
+          font-size: 0.9rem;
+        }
+        .profile-actions {
+          margin-top: 1.5rem;
+          padding-top: 1rem;
+          border-top: 1px solid #eee;
+        }
+        .review-link {
+          display: inline-block;
+          color: #0066cc;
+          text-decoration: none;
+          font-weight: 500;
+          font-size: 0.95rem;
+        }
+        .review-link:hover {
+          text-decoration: underline;
         }
       `}</style>
     </div>

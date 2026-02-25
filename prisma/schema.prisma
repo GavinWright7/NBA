@@ -29,8 +29,31 @@ model Player {
   createdAt      DateTime @default(now())
   updatedAt      DateTime @updatedAt
 
+  partnerships   PlayerPartnership[]
+
   @@index([team])
   @@index([name])
   @@index([position])
   @@index([heightInches])
+}
+
+model PlayerPartnership {
+  id                   String   @id @default(cuid())
+  playerId             String
+  player               Player   @relation(fields: [playerId], references: [id], onDelete: Cascade)
+  brand                String
+  dates                String
+  activationType       String   // Type of Activation
+  distribution         String?
+  additionalNotes      String?
+  playerFee            String?
+  caliber              String?
+  igFollowersAtTime    Int?
+  twitterFollowersAtTime Int?
+  reachAtTime          Int?
+  createdAt            DateTime @default(now())
+  updatedAt            DateTime @updatedAt
+
+  @@unique([playerId, brand, dates, activationType])
+  @@index([playerId])
 }

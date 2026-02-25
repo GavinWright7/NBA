@@ -1,5 +1,13 @@
 import { prisma } from "../../../lib/db";
 
+const SKIP_VALUES = new Set(["(not available)", "not available", "—"]);
+
+function validFacetValue(v) {
+  if (v == null || typeof v !== "string") return false;
+  const s = v.trim();
+  return s !== "" && !SKIP_VALUES.has(s) && !/^\(not\s+available\)$/i.test(s);
+}
+
 export default async function handler(req, res) {
   try {
     const [teams, positions, heightRange] = await Promise.all([
@@ -20,7 +28,8 @@ export default async function handler(req, res) {
         _max: { heightInches: true },
       }),
     ]);
-    const positionValues = positions.map((r) => r.position).filter(Boolean);
+    const teamValues = teams.map((r) => r.team).filter(validFacetValue);
+    const positionValues = positions.map((r) => r.position).filter(validFacetValue);
     const positionsGandFOnly = positionValues.filter(
       (p) => p.toUpperCase() !== "C" && !/^center$/i.test(p)
     );
@@ -29,7 +38,7 @@ export default async function handler(req, res) {
       "s-maxage=3600, stale-while-revalidate=86400"
     );
     return res.status(200).json({
-      teams: teams.map((r) => r.team).filter(Boolean),
+      teams: teamValues,
       positions: positionsGandFOnly,
       minHeightInches: heightRange._min.heightInches ?? 72,
       maxHeightInches: heightRange._max.heightInches ?? 96,

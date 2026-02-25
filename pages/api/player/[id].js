@@ -17,7 +17,7 @@ export default async function handler(req, res) {
   try {
     const dbPlayer = await prisma.player.findUnique({
       where: { nbaPersonId: String(id) },
-      include: { instagramMetrics: true },
+      include: { partnerships: true },
     });
 
     if (!dbPlayer) {
@@ -38,6 +38,17 @@ export default async function handler(req, res) {
         }
       : null;
 
+    const partnerships = (dbPlayer.partnerships || []).map((p) => ({
+      id: p.id,
+      brand: p.brand,
+      dates: p.dates,
+      activationType: p.activationType,
+      distribution: p.distribution ?? null,
+      additionalNotes: p.additionalNotes ?? null,
+      playerFee: p.playerFee ?? null,
+      caliber: p.caliber ?? null,
+    }));
+
     res.setHeader(
       "Cache-Control",
       "s-maxage=60, stale-while-revalidate=300"
@@ -51,6 +62,7 @@ export default async function handler(req, res) {
       heightInches: dbPlayer.heightInches,
       heightText: dbPlayer.heightText,
       socialMedia,
+      partnerships,
     });
   } catch (err) {
     console.error("[api/player/[id]]", err);

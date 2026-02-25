@@ -70,8 +70,11 @@ export default function Home() {
       .then((json) => {
         setData(json);
         if (isFullList && json.players && json.players.length > 0) {
-          const teams = [...new Set(json.players.map((p) => p.team).filter(Boolean))].sort();
-          const positions = [...new Set(json.players.map((p) => p.position).filter(Boolean))].sort();
+          const skip = (v) =>
+            v == null ||
+            (typeof v === "string" && (v.trim() === "" || /^\(not\s+available\)$/i.test(v.trim())));
+          const teams = [...new Set(json.players.map((p) => p.team).filter((t) => !skip(t)))].sort();
+          const positions = [...new Set(json.players.map((p) => p.position).filter((p) => !skip(p)))].sort();
           const heights = json.players.map((p) => p.heightInches).filter((n) => n != null);
           setFacets((prev) => ({
             teams,

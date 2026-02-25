@@ -2,6 +2,9 @@ import { prisma } from "../../lib/db";
 
 const HEADSHOT_BASE = "https://cdn.nba.com/headshots/nba/latest/1040x760";
 
+const SKIP_VALUES = new Set(["(not available)", "not available", "—", ""]);
+const ALLOWED_ORDER_BY = new Set(["name", "team", "position", "followers", "following", "heightInches", "createdAt"]);
+
 function getCurrentSeason() {
   const now = new Date();
   const month = now.getMonth();
@@ -11,19 +14,25 @@ function getCurrentSeason() {
   return `${startYear}-${endYearShort}`;
 }
 
+function skipValue(val) {
+  if (val == null) return true;
+  const s = String(val).trim();
+  return s === "" || SKIP_VALUES.has(s) || /^\(not\s+available\)$/i.test(s);
+}
+
 export default async function handler(req, res) {
   try {
-    const { q, team, position, minHeight, maxHeight, minFollowers, maxFollowers } = req.query;
+    const { q, team, position, minHeight, maxHeight, minFollowers, maxFollowers, sort } = req.query;
     const where = {};
-    if (q != null && String(q).trim() !== "") {
+    if (q != null && String(q).trim() !== "" && !skipValue(q)) {
       where.name = { contains: String(q).trim(), mode: "insensitive" };
     }
-    if (team != null && String(team).trim() !== "") {
-      where.team = String(team).trim();
+    if (team != null && !skipValue(team)) {
+      const t = String(team).trim();
+      where.team = t;
     }
-    if (position != null && String(position).trim() !== "") {
+    if (position != null && !skipValue(position)) {
       const p = String(position).trim();
-      // Match position (e.g. "Guard", "Forward", "Center") or positionNorm (G/F/C)
       where.OR = [
         { position: { equals: p, mode: "insensitive" } },
         { positionNorm: p.toUpperCase() },
@@ -60,9 +69,13 @@ export default async function handler(req, res) {
       where.followers.lte = maxF;
     }
 
+    const orderByKey =
+      sort != null && String(sort).trim() !== "" && ALLOWED_ORDER_BY.has(String(sort).trim())
+        ? String(sort).trim()
+        : "name";
     const players = await prisma.player.findMany({
       where,
-      orderBy: { name: "asc" },
+      orderBy: { [orderByKey]: "asc" },
     });
     const season = getCurrentSeason();
     const list = players.map((p) => ({
