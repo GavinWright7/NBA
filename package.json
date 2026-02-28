@@ -13,7 +13,11 @@
     "enrich:roster": "node prisma/enrichRoster.js",
     "scrape-instagram": "node scripts/scrape-instagram.js",
     "partnerships:import": "node prisma/importThink45OPartnerships.js data/confidential_data.csv",
-    "ig:partnerships:import": "node prisma/importThink45OPartnerships.js data/THINK45O_player_activation_full.csv"
+    "ig:partnerships:import": "node prisma/importThink45OPartnerships.js data/THINK45O_player_activation_full.csv",
+    "ig:engagement": "node prisma/fetchInstagramEngagementSelenium.js",
+    "ig:stats:socialblade": "node prisma/fetchInstagramStatsSocialBladeSelenium.js",
+    "ig:stats:socialblade2": "node prisma/fetchInstagramStatsSocialBlade2.js",
+    "ig:sync": "python3 scripts/sync_socialblade_to_db.py"
   },
   "dependencies": {
     "@prisma/adapter-pg": "^7.4.1",
@@ -22,12 +26,15 @@
     "dotenv": "^17.3.1",
     "next": "14.2.19",
     "pg": "^8.18.0",
+    "playwright": "^1.58.2",
     "prisma": "^7.4.1",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
     "selenium-webdriver": "^4.41.0"
   },
   "devDependencies": {
+    "@netlify/plugin-nextjs": "^5.9.5",
+    "chromedriver": "^145.0.6",
     "tsx": "^4.7.0"
   }
 }
