@@ -35,7 +35,7 @@ export default async function handler(req, res) {
     );
     res.setHeader(
       "Cache-Control",
-      "s-maxage=3600, stale-while-revalidate=86400"
+      "no-store"
     );
     return res.status(200).json({
       teams: teamValues,

@@ -21,10 +21,18 @@ model Player {
 
   followers      Int?
   following      Int?
+  posts          Int?    // total posts (from profile header)
   avgLikes       Int?
   avgComments    Int?
   engagementRate Float?
   instagramUpdatedAt DateTime?
+  igEngagementLastCheckedAt DateTime?
+  igEngagementStatus  String?  // e.g. "ok", "private", "unavailable", "rate_limit"
+  igSbLastCheckedAt   DateTime?
+  igSbStatus          String?  // ok | not_found | blocked | error
+  igEngagementRate    Float?   // from SocialBlade (e.g. 8.25)
+  igAvgLikes          Float?
+  igAvgComments       Float?
 
   createdAt      DateTime @default(now())
   updatedAt      DateTime @updatedAt

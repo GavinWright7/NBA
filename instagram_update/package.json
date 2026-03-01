@@ -1,0 +1,13 @@
+{
+  "name": "ig-follow-scraper",
+  "version": "1.0.0",
+  "description": "DuckDuckGo + Instagram HTML scraper for NBA player follow counts",
+  "type": "module",
+  "scripts": {
+    "ig:scrape": "node scripts/scrape_ig_from_names.js"
+  },
+  "dependencies": {
+    "dotenv": "^16.3.1",
+    "papaparse": "^5.4.1"
+  }
+}

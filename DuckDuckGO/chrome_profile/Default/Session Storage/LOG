@@ -1,0 +1,53 @@
+2026/02/22-23:10:41.538 539a39 Creating DB /Users/gavinwright/Desktop/DuckDuckGO/chrome_profile/Default/Session Storage since it was missing.
+2026/02/22-23:10:41.541 539a39 Reusing MANIFEST /Users/gavinwright/Desktop/DuckDuckGO/chrome_profile/Default/Session Storage/MANIFEST-000001
+2026/02/22-23:17:47.028 539a39 Level-0 table #5: started
+2026/02/22-23:17:47.032 539a39 Level-0 table #5: 21613 bytes OK
+2026/02/22-23:17:47.035 539a39 Delete type=0 #3
+2026/02/22-23:29:22.746 539a39 Level-0 table #7: started
+2026/02/22-23:29:22.748 539a39 Level-0 table #7: 23986 bytes OK
+2026/02/22-23:29:22.751 539a39 Delete type=0 #4
+2026/02/22-23:41:47.044 539a3c Level-0 table #9: started
+2026/02/22-23:41:47.047 539a3c Level-0 table #9: 23143 bytes OK
+2026/02/22-23:41:47.048 539a3c Delete type=0 #6
+2026/02/22-23:50:47.047 539a39 Level-0 table #11: started
+2026/02/22-23:50:47.052 539a39 Level-0 table #11: 24304 bytes OK
+2026/02/22-23:50:47.054 539a39 Delete type=0 #8
+2026/02/23-00:01:27.236 539a39 Level-0 table #13: started
+2026/02/23-00:01:27.238 539a39 Level-0 table #13: 28345 bytes OK
+2026/02/23-00:01:27.241 539a39 Delete type=0 #10
+2026/02/23-00:11:42.522 539a39 Level-0 table #15: started
+2026/02/23-00:11:42.525 539a39 Level-0 table #15: 24521 bytes OK
+2026/02/23-00:11:42.527 539a39 Delete type=0 #12
+2026/02/23-00:11:42.528 539a39 Compacting 4@0 + 1@1 files
+2026/02/23-00:11:42.529 539a39 Generated table #16@0: 710 keys, 88100 bytes
+2026/02/23-00:11:42.529 539a39 Compacted 4@0 + 1@1 files => 88100 bytes
+2026/02/23-00:11:42.530 539a39 compacted to: files[ 0 1 1 0 0 0 0 ]
+2026/02/23-00:11:42.530 539a39 Delete type=2 #15
+2026/02/23-00:11:42.530 539a39 Delete type=2 #7
+2026/02/23-00:11:42.530 539a39 Delete type=2 #13
+2026/02/23-00:11:42.530 539a39 Delete type=2 #11
+2026/02/23-00:11:42.530 539a39 Delete type=2 #9
+2026/02/23-00:17:47.044 5567a0 Level-0 table #18: started
+2026/02/23-00:17:47.047 5567a0 Level-0 table #18: 22617 bytes OK
+2026/02/23-00:17:47.050 5567a0 Delete type=0 #14
+2026/02/23-00:25:50.882 539a3c Level-0 table #20: started
+2026/02/23-00:25:50.885 539a3c Level-0 table #20: 24024 bytes OK
+2026/02/23-00:25:50.888 539a3c Delete type=0 #17
+2026/02/23-00:34:47.046 539a39 Level-0 table #22: started
+2026/02/23-00:34:47.053 539a39 Level-0 table #22: 25417 bytes OK
+2026/02/23-00:34:47.056 539a39 Delete type=0 #19
+2026/02/23-00:48:20.820 539a39 Level-0 table #24: started
+2026/02/23-00:48:20.823 539a39 Level-0 table #24: 24204 bytes OK
+2026/02/23-00:48:20.825 539a39 Delete type=0 #21
+2026/02/23-00:48:20.826 539a39 Compacting 4@0 + 1@1 files
+2026/02/23-00:48:20.829 539a39 Generated table #25@0: 1281 keys, 152583 bytes
+2026/02/23-00:48:20.829 539a39 Compacted 4@0 + 1@1 files => 152583 bytes
+2026/02/23-00:48:20.830 539a39 compacted to: files[ 0 1 1 0 0 0 0 ]
+2026/02/23-00:48:20.830 539a39 Delete type=2 #16
+2026/02/23-00:48:20.830 539a39 Delete type=2 #20
+2026/02/23-00:48:20.830 539a39 Delete type=2 #22
+2026/02/23-00:48:20.830 539a39 Delete type=2 #18
+2026/02/23-00:48:20.830 539a39 Delete type=2 #24
+2026/02/23-01:01:28.576 539a3c Level-0 table #27: started
+2026/02/23-01:01:28.578 539a3c Level-0 table #27: 24850 bytes OK
+2026/02/23-01:01:28.580 539a3c Delete type=0 #23

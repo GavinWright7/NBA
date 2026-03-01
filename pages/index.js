@@ -18,13 +18,6 @@ function parseFollowersInput(str) {
   return Math.round(n);
 }
 
-function inchToLabel(inches) {
-  if (inches == null) return "Any";
-  const f = Math.floor(inches / 12);
-  const i = inches % 12;
-  return `${f}'${i}"`;
-}
-
 export default function Home() {
   const [data, setData] = useState(null);
   const [facets, setFacets] = useState(null);
@@ -33,8 +26,6 @@ export default function Home() {
   const [search, setSearch] = useState("");
   const [team, setTeam] = useState("");
   const [position, setPosition] = useState("");
-  const [minHeight, setMinHeight] = useState("");
-  const [maxHeight, setMaxHeight] = useState("");
   const [minFollowers, setMinFollowers] = useState("");
   const [maxFollowers, setMaxFollowers] = useState("");
   const [minFollowersQuery, setMinFollowersQuery] = useState("");
@@ -46,8 +37,6 @@ export default function Home() {
     if (search.trim()) params.set("q", search.trim());
     if (team) params.set("team", team);
     if (position) params.set("position", position);
-    if (minHeight !== "") params.set("minHeight", minHeight);
-    if (maxHeight !== "") params.set("maxHeight", maxHeight);
     const minF = parseFollowersInput(minFollowersQuery);
     const maxF = parseFollowersInput(maxFollowersQuery);
     if (minF != null) params.set("minFollowers", String(minF));
@@ -56,8 +45,6 @@ export default function Home() {
       !search.trim() &&
       !team &&
       !position &&
-      minHeight === "" &&
-      maxHeight === "" &&
       minF == null &&
       maxF == null;
     setLoading(true);
@@ -75,12 +62,9 @@ export default function Home() {
             (typeof v === "string" && (v.trim() === "" || /^\(not\s+available\)$/i.test(v.trim())));
           const teams = [...new Set(json.players.map((p) => p.team).filter((t) => !skip(t)))].sort();
           const positions = [...new Set(json.players.map((p) => p.position).filter((p) => !skip(p)))].sort();
-          const heights = json.players.map((p) => p.heightInches).filter((n) => n != null);
           setFacets((prev) => ({
             teams,
             positions,
-            minHeightInches: prev?.minHeightInches ?? (heights.length ? Math.min(...heights) : 72),
-            maxHeightInches: prev?.maxHeightInches ?? (heights.length ? Math.max(...heights) : 96),
           }));
         }
       })
@@ -90,7 +74,7 @@ export default function Home() {
       .finally(() => {
         setLoading(false);
       });
-  }, [search, team, position, minHeight, maxHeight, minFollowersQuery, maxFollowersQuery]);
+  }, [search, team, position, minFollowersQuery, maxFollowersQuery]);
 
   useEffect(() => {
     if (followersDebounceRef.current) clearTimeout(followersDebounceRef.current);
@@ -111,11 +95,9 @@ export default function Home() {
         setFacets((prev) => ({
           teams: f.teams?.length ? f.teams : prev?.teams ?? [],
           positions: f.positions?.length ? f.positions : prev?.positions ?? [],
-          minHeightInches: f.minHeightInches ?? prev?.minHeightInches ?? 72,
-          maxHeightInches: f.maxHeightInches ?? prev?.maxHeightInches ?? 96,
         }));
       })
-      .catch(() => setFacets({ teams: [], positions: [], minHeightInches: 72, maxHeightInches: 96 }));
+      .catch(() => setFacets({ teams: [], positions: [] }));
   }, []);
 
   useEffect(() => {
@@ -123,12 +105,6 @@ export default function Home() {
   }, [fetchPlayers]);
 
   const players = data?.players ?? [];
-  const heightMin = facets?.minHeightInches ?? 72;
-  const heightMax = facets?.maxHeightInches ?? 96;
-  const heightOptions = [];
-  for (let i = heightMin; i <= heightMax; i++) {
-    heightOptions.push({ value: i, label: inchToLabel(i) });
-  }
 
   return (
     <div className="page">
@@ -171,32 +147,6 @@ export default function Home() {
             {(facets?.positions ?? []).map((p) => (
               <option key={p} value={p}>
                 {p}
-              </option>
-            ))}
-          </select>
-          <select
-            className="filter-select"
-            value={minHeight}
-            onChange={(e) => setMinHeight(e.target.value)}
-            aria-label="Min height"
-          >
-            <option value="">Min height</option>
-            {heightOptions.map(({ value, label }) => (
-              <option key={value} value={value}>
-                {label}
-              </option>
-            ))}
-          </select>
-          <select
-            className="filter-select"
-            value={maxHeight}
-            onChange={(e) => setMaxHeight(e.target.value)}
-            aria-label="Max height"
-          >
-            <option value="">Max height</option>
-            {heightOptions.map(({ value, label }) => (
-              <option key={value} value={value}>
-                {label}
               </option>
             ))}
           </select>
@@ -277,23 +227,24 @@ export default function Home() {
       <style jsx>{`
         .page {
           min-height: 100vh;
-          background: #f5f5f5;
-          color: #111;
+          background: var(--color-page-bg-list);
+          color: var(--nbpa-text-on-dark);
         }
         .header {
-          background: #fff;
+          background: var(--nbpa-header-bg);
           padding: 1rem 1.5rem 1.25rem;
-          box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+          box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
         }
         .title {
           margin: 0 0 0.25rem 0;
           font-size: 1.5rem;
-          font-weight: 700;
+          font-weight: 800;
+          color: var(--nbpa-text-on-dark);
         }
         .count {
           margin: 0 0 1rem 0;
           font-size: 0.9rem;
-          color: #555;
+          color: rgba(255, 255, 255, 0.85);
         }
         .filters {
           display: flex;
@@ -306,7 +257,7 @@ export default function Home() {
           position: sticky;
           top: 0;
           z-index: 2;
-          background: #fff;
+          background: var(--color-page-bg-list);
           padding-bottom: 0.25rem;
         }
         .search {
@@ -314,21 +265,27 @@ export default function Home() {
           max-width: 20rem;
           padding: 0.6rem 0.75rem;
           font-size: 1rem;
-          border: 1px solid #ccc;
+          border: 1px solid rgba(255, 255, 255, 0.25);
           border-radius: 6px;
           outline: none;
+          background: rgba(255, 255, 255, 0.08);
+          color: var(--nbpa-text-on-dark);
+        }
+        .search::placeholder {
+          color: rgba(255, 255, 255, 0.5);
         }
         .search:focus {
-          border-color: #0066cc;
-          box-shadow: 0 0 0 2px rgba(0, 102, 204, 0.2);
+          border-color: var(--nbpa-gold);
+          box-shadow: 0 0 0 2px rgba(170, 145, 90, 0.25);
         }
         .filter-select,
         .filter-input {
           padding: 0.5rem 0.6rem;
           font-size: 0.9rem;
-          border: 1px solid #ccc;
+          border: 1px solid rgba(255, 255, 255, 0.25);
           border-radius: 6px;
-          background: #fff;
+          background: rgba(255, 255, 255, 0.08);
+          color: var(--nbpa-text-on-dark);
           min-width: 6rem;
         }
         .filter-input {
@@ -345,16 +302,16 @@ export default function Home() {
         .state {
           text-align: center;
           padding: 3rem 1rem;
-          color: #555;
+          color: rgba(255, 255, 255, 0.8);
         }
         .state-loading {
           font-style: italic;
         }
         .state-error {
-          color: #b00;
+          color: #f0a0a0;
         }
         .state-empty {
-          color: #666;
+          color: rgba(255, 255, 255, 0.7);
         }
         .grid {
           list-style: none;
@@ -374,17 +331,17 @@ export default function Home() {
           height: 100%;
         }
         .card {
-          background: #fff;
+          background: var(--color-page-bg);
           border-radius: 8px;
           overflow: hidden;
-          box-shadow: 0 1px 4px rgba(0, 0, 0, 0.08);
+          box-shadow: 0 2px 8px rgba(0, 0, 0, 0.35);
           transition: box-shadow 0.2s, transform 0.2s;
           height: 100%;
           display: flex;
           flex-direction: column;
         }
         .card:hover {
-          box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
+          box-shadow: 0 6px 20px rgba(0, 0, 0, 0.4);
           transform: translateY(-2px);
         }
         .card-img {
@@ -392,7 +349,7 @@ export default function Home() {
           height: auto;
           aspect-ratio: 260 / 190;
           object-fit: cover;
-          background: #e8e8e8;
+          background: var(--color-border);
         }
         .card-body {
           padding: 0.75rem;
@@ -401,13 +358,14 @@ export default function Home() {
         .card-name {
           margin: 0 0 0.25rem 0;
           font-size: 1rem;
-          font-weight: 600;
+          font-weight: 800;
           line-height: 1.3;
+          color: var(--nbpa-text-on-light);
         }
         .card-meta {
           margin: 0;
           font-size: 0.75rem;
-          color: #666;
+          color: var(--color-muted);
         }
       `}</style>
     </div>

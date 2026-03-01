@@ -1,19 +1,23 @@
+import Head from "next/head";
+import { Montserrat } from "next/font/google";
+import "../styles/globals.css";
+
+const montserrat = Montserrat({
+  subsets: ["latin"],
+  weight: ["400", "800", "900"],
+  display: "swap",
+  variable: "--font-montserrat",
+});
+
 export default function App({ Component, pageProps }) {
   return (
     <>
-      <style jsx global>{`
-        *,
-        *::before,
-        *::after {
-          box-sizing: border-box;
-        }
-        body {
-          margin: 0;
-          font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
-            "Helvetica Neue", Arial, sans-serif;
-        }
-      `}</style>
-      <Component {...pageProps} />
+      <Head>
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+      </Head>
+      <div className={montserrat.variable}>
+        <Component {...pageProps} />
+      </div>
     </>
   );
 }

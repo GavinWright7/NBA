@@ -51,7 +51,7 @@ export default async function handler(req, res) {
 
     res.setHeader(
       "Cache-Control",
-      "s-maxage=60, stale-while-revalidate=300"
+      "no-store"
     );
     return res.status(200).json({
       id: dbPlayer.nbaPersonId,

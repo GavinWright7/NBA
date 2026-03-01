@@ -38,8 +38,8 @@ export default function PlayerPage() {
       <div className="page">
         <div className="state">Loading…</div>
         <style jsx>{`
-          .page { min-height: 100vh; background: #f5f5f5; padding: 2rem; }
-          .state { text-align: center; color: #555; }
+          .page { min-height: 100vh; background: var(--color-page-bg-subtle); padding: 2rem; }
+          .state { text-align: center; color: var(--color-muted); }
         `}</style>
       </div>
     );
@@ -183,16 +183,16 @@ export default function PlayerPage() {
       <style jsx>{`
         .page {
           min-height: 100vh;
-          background: #f5f5f5;
-          color: #111;
+          background: var(--color-page-bg-subtle);
+          color: var(--nbpa-text-on-light);
         }
         .header {
-          background: #fff;
+          background: var(--color-page-bg);
           padding: 1rem 1.5rem;
           box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
         }
         .back {
-          color: #0066cc;
+          color: var(--nbpa-gold);
           text-decoration: none;
           font-size: 0.95rem;
         }
@@ -207,20 +207,20 @@ export default function PlayerPage() {
         .state {
           text-align: center;
           padding: 3rem 1rem;
-          color: #555;
+          color: var(--color-muted);
         }
         .state-loading {
           font-style: italic;
         }
         .state-error {
-          color: #b00;
+          color: var(--color-error);
         }
         .profile {
           display: flex;
           flex-wrap: wrap;
           gap: 1.5rem;
           align-items: flex-start;
-          background: #fff;
+          background: var(--color-page-bg);
           padding: 1.5rem;
           border-radius: 8px;
           box-shadow: 0 1px 4px rgba(0, 0, 0, 0.08);
@@ -231,7 +231,7 @@ export default function PlayerPage() {
           aspect-ratio: 260 / 190;
           object-fit: cover;
           border-radius: 6px;
-          background: #e8e8e8;
+          background: var(--color-border);
         }
         .profile-info {
           flex: 1;
@@ -240,7 +240,7 @@ export default function PlayerPage() {
         .profile-name {
           margin: 0 0 1rem 0;
           font-size: 1.75rem;
-          font-weight: 700;
+          font-weight: 800;
         }
         .profile-meta {
           margin: 0 0 1.5rem 0;
@@ -250,7 +250,7 @@ export default function PlayerPage() {
         }
         .profile-meta dt {
           margin: 0;
-          color: #555;
+          color: var(--color-muted);
           font-weight: 500;
         }
         .profile-meta dd {
@@ -259,12 +259,12 @@ export default function PlayerPage() {
         .social-section {
           margin-top: 1.5rem;
           padding-top: 1.5rem;
-          border-top: 1px solid #eee;
+          border-top: 1px solid var(--color-border);
         }
         .social-title {
           margin: 0 0 0.75rem 0;
           font-size: 1.1rem;
-          font-weight: 600;
+          font-weight: 800;
         }
         .social-stats {
           margin: 0;
@@ -280,7 +280,7 @@ export default function PlayerPage() {
         }
         .social-row dt {
           margin: 0;
-          color: #555;
+          color: var(--color-muted);
           font-weight: 500;
           font-size: 0.9rem;
         }
@@ -291,22 +291,22 @@ export default function PlayerPage() {
         .social-updated {
           margin: 0.75rem 0 0 0;
           font-size: 0.8rem;
-          color: #888;
+          color: var(--color-muted-light);
         }
         .social-placeholder {
           margin: 0;
-          color: #888;
+          color: var(--color-muted-light);
           font-size: 0.9rem;
         }
         .partnerships-section {
           margin-top: 1.5rem;
           padding-top: 1.5rem;
-          border-top: 1px solid #eee;
+          border-top: 1px solid var(--color-border);
         }
         .partnerships-title {
           margin: 0 0 0.75rem 0;
           font-size: 1.1rem;
-          font-weight: 600;
+          font-weight: 800;
         }
         .partnerships-list {
           list-style: none;
@@ -317,16 +317,16 @@ export default function PlayerPage() {
           gap: 1rem;
         }
         .partnership-card {
-          background: #f9f9f9;
+          background: var(--color-page-bg-alt);
           border-radius: 6px;
           padding: 1rem;
-          border: 1px solid #eee;
+          border: 1px solid var(--color-border);
         }
         .partnership-brand {
           font-weight: 600;
           font-size: 1rem;
           margin-bottom: 0.5rem;
-          color: #111;
+          color: var(--nbpa-text-on-light);
         }
         .partnership-details {
           margin: 0;
@@ -342,7 +342,7 @@ export default function PlayerPage() {
         }
         .partnership-row dt {
           margin: 0;
-          color: #555;
+          color: var(--color-muted);
           font-weight: 500;
           font-size: 0.85rem;
         }
@@ -352,17 +352,17 @@ export default function PlayerPage() {
         }
         .partnerships-empty {
           margin: 0;
-          color: #888;
+          color: var(--color-muted-light);
           font-size: 0.9rem;
         }
         .profile-actions {
           margin-top: 1.5rem;
           padding-top: 1rem;
-          border-top: 1px solid #eee;
+          border-top: 1px solid var(--color-border);
         }
         .review-link {
           display: inline-block;
-          color: #0066cc;
+          color: var(--nbpa-gold);
           text-decoration: none;
           font-weight: 500;
           font-size: 0.95rem;

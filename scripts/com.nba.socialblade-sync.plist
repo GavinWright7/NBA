@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN"
+  "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<!--
+  macOS launchd plist — runs the SocialBlade sync every day at 3:00 AM.
+
+  To install:
+    cp scripts/com.nba.socialblade-sync.plist ~/Library/LaunchAgents/
+    launchctl load ~/Library/LaunchAgents/com.nba.socialblade-sync.plist
+
+  To uninstall:
+    launchctl unload ~/Library/LaunchAgents/com.nba.socialblade-sync.plist
+    rm ~/Library/LaunchAgents/com.nba.socialblade-sync.plist
+
+  To run immediately (for testing):
+    launchctl start com.nba.socialblade-sync
+
+  Logs:
+    data/socialblade_sync.log        (written by the Python script)
+    data/socialblade_sync_stdout.log (stdout captured by launchd)
+    data/socialblade_sync_stderr.log (stderr captured by launchd)
+-->
+<plist version="1.0">
+<dict>
+    <key>Label</key>
+    <string>com.nba.socialblade-sync</string>
+
+    <key>ProgramArguments</key>
+    <array>
+        <string>/bin/bash</string>
+        <string>/Users/gavinwright/Desktop/Passion Projects/NBA/scripts/run_socialblade_sync.sh</string>
+    </array>
+
+    <!-- Run every day at 03:00 AM -->
+    <key>StartCalendarInterval</key>
+    <dict>
+        <key>Hour</key>
+        <integer>3</integer>
+        <key>Minute</key>
+        <integer>0</integer>
+    </dict>
+
+    <key>StandardOutPath</key>
+    <string>/Users/gavinwright/Desktop/Passion Projects/NBA/data/socialblade_sync_stdout.log</string>
+
+    <key>StandardErrorPath</key>
+    <string>/Users/gavinwright/Desktop/Passion Projects/NBA/data/socialblade_sync_stderr.log</string>
+
+    <!-- Don't run immediately on load, only at the scheduled time -->
+    <key>RunAtLoad</key>
+    <false/>
+</dict>
+</plist>

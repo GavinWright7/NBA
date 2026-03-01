@@ -95,10 +95,7 @@ export default async function handler(req, res) {
       avgCommentsRecent: p.avgComments ?? null,
       lastFetchedAt: p.igLastCheckedAt?.toISOString?.() ?? p.instagramUpdatedAt?.toISOString?.() ?? null,
     }));
-    res.setHeader(
-      "Cache-Control",
-      "s-maxage=3600, stale-while-revalidate=86400"
-    );
+    res.setHeader("Cache-Control", "no-store");
     return res.status(200).json({
       season,
       count: list.length,

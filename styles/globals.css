@@ -1,0 +1,45 @@
+/* NBPA theme – centralized color system. Reference these variables everywhere. */
+:root {
+  /* Primary palette */
+  --nbpa-header-bg: #2D2D32;
+  --nbpa-dark-bg: rgb(42, 42, 46); /* #2A2A2E – page background (dark section / hero) */
+  --nbpa-gold: #aa915a;
+  --nbpa-text-on-dark: #FFFFFF;
+  --nbpa-text-on-light: #000000;
+
+  /* Semantic aliases */
+  --color-page-bg: #ffffff;
+  --color-page-bg-subtle: #f5f5f5;
+  --color-page-bg-list: rgb(42, 42, 46); /* dark background for search/list so white cards pop */
+  --color-page-bg-alt: #f8f7f5;
+  --color-border: #e5e5e5;
+  --color-muted: #666666;
+  --color-muted-light: #999999;
+  --color-body: #333333;
+  --color-error: #b00;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  margin: 0;
+  font-family: var(--font-montserrat), "Montserrat", sans-serif;
+  font-weight: 400;
+  font-size: 14px;
+  color: var(--nbpa-text-on-light);
+  background: var(--color-page-bg);
+}
+
+/* Headings use heavy weight – apply in components via class or weight */
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--font-montserrat), "Montserrat", sans-serif;
+  font-weight: 800;
+}
