@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback, useRef } from "react";
 import Link from "next/link";
 
-const FOLLOWERS_DEBOUNCE_MS = 300;
+const DEBOUNCE_MS = 300;
 
 function parseFollowersInput(str) {
   if (str == null || typeof str !== "string") return null;
@@ -30,7 +30,13 @@ export default function Home() {
   const [maxFollowers, setMaxFollowers] = useState("");
   const [minFollowersQuery, setMinFollowersQuery] = useState("");
   const [maxFollowersQuery, setMaxFollowersQuery] = useState("");
+  const [minEngagement, setMinEngagement] = useState("");
+  const [maxEngagement, setMaxEngagement] = useState("");
+  const [minEngagementQuery, setMinEngagementQuery] = useState("");
+  const [maxEngagementQuery, setMaxEngagementQuery] = useState("");
+  const [interestSlug, setInterestSlug] = useState("");
   const followersDebounceRef = useRef(null);
+  const engagementDebounceRef = useRef(null);
 
   const fetchPlayers = useCallback(() => {
     const params = new URLSearchParams();
@@ -41,12 +47,20 @@ export default function Home() {
     const maxF = parseFollowersInput(maxFollowersQuery);
     if (minF != null) params.set("minFollowers", String(minF));
     if (maxF != null) params.set("maxFollowers", String(maxF));
+    const minE = minEngagementQuery.trim() !== "" ? parseFloat(minEngagementQuery) : null;
+    const maxE = maxEngagementQuery.trim() !== "" ? parseFloat(maxEngagementQuery) : null;
+    if (minE != null && !Number.isNaN(minE)) params.set("minEngagement", String(minE));
+    if (maxE != null && !Number.isNaN(maxE)) params.set("maxEngagement", String(maxE));
+    if (interestSlug) params.set("interestSlug", interestSlug);
     const isFullList =
       !search.trim() &&
       !team &&
       !position &&
       minF == null &&
-      maxF == null;
+      maxF == null &&
+      minE == null &&
+      maxE == null &&
+      !interestSlug;
     setLoading(true);
     setError(null);
     fetch(`/api/players?${params.toString()}`)
@@ -65,6 +79,7 @@ export default function Home() {
           setFacets((prev) => ({
             teams,
             positions,
+            interestTags: prev?.interestTags ?? [],
           }));
         }
       })
@@ -74,7 +89,7 @@ export default function Home() {
       .finally(() => {
         setLoading(false);
       });
-  }, [search, team, position, minFollowersQuery, maxFollowersQuery]);
+  }, [search, team, position, minFollowersQuery, maxFollowersQuery, minEngagementQuery, maxEngagementQuery, interestSlug]);
 
   useEffect(() => {
     if (followersDebounceRef.current) clearTimeout(followersDebounceRef.current);
@@ -82,11 +97,23 @@ export default function Home() {
       setMinFollowersQuery(minFollowers);
       setMaxFollowersQuery(maxFollowers);
       followersDebounceRef.current = null;
-    }, FOLLOWERS_DEBOUNCE_MS);
+    }, DEBOUNCE_MS);
     return () => {
       if (followersDebounceRef.current) clearTimeout(followersDebounceRef.current);
     };
   }, [minFollowers, maxFollowers]);
+
+  useEffect(() => {
+    if (engagementDebounceRef.current) clearTimeout(engagementDebounceRef.current);
+    engagementDebounceRef.current = setTimeout(() => {
+      setMinEngagementQuery(minEngagement);
+      setMaxEngagementQuery(maxEngagement);
+      engagementDebounceRef.current = null;
+    }, DEBOUNCE_MS);
+    return () => {
+      if (engagementDebounceRef.current) clearTimeout(engagementDebounceRef.current);
+    };
+  }, [minEngagement, maxEngagement]);
 
   useEffect(() => {
     fetch("/api/players/facets")
@@ -95,9 +122,10 @@ export default function Home() {
         setFacets((prev) => ({
           teams: f.teams?.length ? f.teams : prev?.teams ?? [],
           positions: f.positions?.length ? f.positions : prev?.positions ?? [],
+          interestTags: f.interestTags?.length ? f.interestTags : prev?.interestTags ?? [],
         }));
       })
-      .catch(() => setFacets({ teams: [], positions: [] }));
+      .catch(() => setFacets({ teams: [], positions: [], interestTags: [] }));
   }, []);
 
   useEffect(() => {
@@ -154,7 +182,7 @@ export default function Home() {
             type="text"
             inputMode="numeric"
             className="filter-input"
-            placeholder="Min followers (e.g. 10k, 20M)"
+            placeholder="Min followers (e.g. 10k)"
             value={minFollowers}
             onChange={(e) => {
               const v = e.target.value;
@@ -166,7 +194,7 @@ export default function Home() {
             type="text"
             inputMode="numeric"
             className="filter-input"
-            placeholder="Max followers (e.g. 10k, 20M)"
+            placeholder="Max followers (e.g. 1M)"
             value={maxFollowers}
             onChange={(e) => {
               const v = e.target.value;
@@ -174,6 +202,53 @@ export default function Home() {
             }}
             aria-label="Max followers"
           />
+          <input
+            type="text"
+            inputMode="decimal"
+            className="filter-input filter-input--eng"
+            placeholder="Min eng% (e.g. 5)"
+            value={minEngagement}
+            onChange={(e) => {
+              const v = e.target.value;
+              if (v === "" || /^\d*\.?\d*$/.test(v)) setMinEngagement(v);
+            }}
+            aria-label="Min engagement rate"
+          />
+          <input
+            type="text"
+            inputMode="decimal"
+            className="filter-input filter-input--eng"
+            placeholder="Max eng% (e.g. 20)"
+            value={maxEngagement}
+            onChange={(e) => {
+              const v = e.target.value;
+              if (v === "" || /^\d*\.?\d*$/.test(v)) setMaxEngagement(v);
+            }}
+            aria-label="Max engagement rate"
+          />
+          <select
+            className="filter-select filter-select--interest"
+            value={interestSlug}
+            onChange={(e) => setInterestSlug(e.target.value)}
+            aria-label="Filter by interest"
+          >
+            <option value="">All interests</option>
+            {(() => {
+              const tags = facets?.interestTags ?? [];
+              const categories = [...new Set(tags.map((t) => t.category))].sort();
+              return categories.map((cat) => (
+                <optgroup key={cat} label={cat}>
+                  {tags
+                    .filter((t) => t.category === cat)
+                    .map((t) => (
+                      <option key={t.slug} value={t.slug}>
+                        {t.label}
+                      </option>
+                    ))}
+                </optgroup>
+              ));
+            })()}
+          </select>
         </div>
       </header>
 
@@ -196,14 +271,22 @@ export default function Home() {
               <li key={player.id} className="card-wrap">
                 <Link href={`/player/${player.id}`} className="card-link">
                   <article className="card">
-                    <img
-                      src={player.headshot}
-                      alt=""
-                      className="card-img"
-                      loading="lazy"
-                      width="260"
-                      height="190"
-                    />
+                    <div className="card-img-wrap">
+                      <img
+                        src={player.headshot}
+                        alt=""
+                        className="card-img"
+                        loading="lazy"
+                        width="260"
+                        height="190"
+                      />
+                      {player.interestStrength === "love" && (
+                        <span className="interest-badge badge-love" title="Loves this">❤ Love</span>
+                      )}
+                      {player.interestStrength === "like" && (
+                        <span className="interest-badge badge-like" title="Likes this">👍 Like</span>
+                      )}
+                    </div>
                     <div className="card-body">
                       <h2 className="card-name">{player.name}</h2>
                       <p className="card-meta">
@@ -291,6 +374,12 @@ export default function Home() {
         .filter-input {
           width: 7rem;
         }
+        .filter-input--eng {
+          width: 6rem;
+        }
+        .filter-select--interest {
+          min-width: 12rem;
+        }
         .filter-input::-webkit-outer-spin-button,
         .filter-input::-webkit-inner-spin-button {
           -webkit-appearance: none;
@@ -344,12 +433,37 @@ export default function Home() {
           box-shadow: 0 6px 20px rgba(0, 0, 0, 0.4);
           transform: translateY(-2px);
         }
+        .card-img-wrap {
+          position: relative;
+        }
         .card-img {
           width: 100%;
           height: auto;
           aspect-ratio: 260 / 190;
           object-fit: cover;
           background: var(--color-border);
+          display: block;
+        }
+        .interest-badge {
+          position: absolute;
+          top: 0.4rem;
+          right: 0.4rem;
+          padding: 0.2rem 0.5rem;
+          border-radius: 999px;
+          font-size: 0.72rem;
+          font-weight: 700;
+          line-height: 1.4;
+          pointer-events: none;
+        }
+        .badge-love {
+          background: #fff3cd;
+          color: #7a5700;
+          border: 1px solid #f0c040;
+        }
+        .badge-like {
+          background: #e8f4fd;
+          color: #0a558c;
+          border: 1px solid #90c8f0;
         }
         .card-body {
           padding: 0.75rem;

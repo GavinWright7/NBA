@@ -13,6 +13,9 @@ data/debug
 data/chrome-profile
 data/chrome-profile2
 data/ddg-profile
+# Survey CSVs (contain player PII / survey responses)
+data/Welcome.csv
+data/unmatched_welcome.csv
 
 # Local Netlify folder
 .netlify

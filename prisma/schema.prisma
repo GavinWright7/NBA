@@ -38,6 +38,7 @@ model Player {
   updatedAt      DateTime @updatedAt
 
   partnerships   PlayerPartnership[]
+  interests      PlayerInterest[]
 
   @@index([team])
   @@index([name])
@@ -64,4 +65,34 @@ model PlayerPartnership {
 
   @@unique([playerId, brand, dates, activationType])
   @@index([playerId])
+}
+
+model InterestTag {
+  id        String   @id @default(cuid())
+  slug      String   @unique
+  label     String
+  category  String
+  createdAt DateTime @default(now())
+
+  playerInterests PlayerInterest[]
+}
+
+model PlayerInterest {
+  id       String @id @default(cuid())
+  playerId String
+  tagId    String
+
+  player Player      @relation(fields: [playerId], references: [id], onDelete: Cascade)
+  tag    InterestTag @relation(fields: [tagId],    references: [id], onDelete: Cascade)
+
+  source   String  // "survey" | "survey_notes" | "manual"
+  strength String? // "love" | "like" | "no_thanks"
+  score    Int     @default(1) // love=3 like=2 no_thanks=0 other=1
+  notes    String?
+
+  createdAt DateTime @default(now())
+
+  @@unique([playerId, tagId, source])
+  @@index([playerId])
+  @@index([tagId])
 }

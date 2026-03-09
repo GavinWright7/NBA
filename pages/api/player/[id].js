@@ -17,7 +17,14 @@ export default async function handler(req, res) {
   try {
     const dbPlayer = await prisma.player.findUnique({
       where: { nbaPersonId: String(id) },
-      include: { partnerships: true },
+      include: {
+        partnerships: true,
+        interests: {
+          where: { strength: { not: "no_thanks" } },
+          include: { tag: true },
+          orderBy: { score: "desc" },
+        },
+      },
     });
 
     if (!dbPlayer) {
@@ -49,10 +56,25 @@ export default async function handler(req, res) {
       caliber: p.caliber ?? null,
     }));
 
-    res.setHeader(
-      "Cache-Control",
-      "no-store"
-    );
+    // Group interests: love/like tags first, then free-text notes
+    const interestTags = [];
+    let surveyNotes = null;
+    for (const pi of dbPlayer.interests || []) {
+      if (pi.source === "survey_notes") {
+        surveyNotes = pi.notes || null;
+      } else {
+        interestTags.push({
+          slug:     pi.tag.slug,
+          label:    pi.tag.label,
+          category: pi.tag.category,
+          strength: pi.strength,
+          score:    pi.score,
+          notes:    pi.notes ?? null,
+        });
+      }
+    }
+
+    res.setHeader("Cache-Control", "no-store");
     return res.status(200).json({
       id: dbPlayer.nbaPersonId,
       name: dbPlayer.name,
@@ -63,6 +85,8 @@ export default async function handler(req, res) {
       heightText: dbPlayer.heightText,
       socialMedia,
       partnerships,
+      interests: interestTags,
+      surveyNotes,
     });
   } catch (err) {
     console.error("[api/player/[id]]", err);

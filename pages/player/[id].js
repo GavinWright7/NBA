@@ -170,6 +170,35 @@ export default function PlayerPage() {
                 )}
               </section>
 
+              <section className="interests-section" aria-label="Player interests">
+                <h2 className="interests-title">Interests</h2>
+                {player.interests && player.interests.length > 0 ? (
+                  <>
+                    <div className="interests-grid">
+                      {player.interests.map((t) => (
+                        <span
+                          key={t.slug}
+                          className={`interest-tag strength-${t.strength || "neutral"}`}
+                          title={t.category}
+                        >
+                          {t.strength === "love" && <span className="badge-dot love-dot" />}
+                          {t.strength === "like" && <span className="badge-dot like-dot" />}
+                          {t.label}
+                        </span>
+                      ))}
+                    </div>
+                    {player.surveyNotes && (
+                      <p className="survey-notes">
+                        <span className="survey-notes-label">Surprised by:</span>{" "}
+                        {player.surveyNotes}
+                      </p>
+                    )}
+                  </>
+                ) : (
+                  <p className="interests-empty">No interests on file yet.</p>
+                )}
+              </section>
+
               <div className="profile-actions">
                 <Link href={`/player/${player.id}/review`} className="review-link">
                   Player Review →
@@ -351,6 +380,71 @@ export default function PlayerPage() {
           font-size: 0.9rem;
         }
         .partnerships-empty {
+          margin: 0;
+          color: var(--color-muted-light);
+          font-size: 0.9rem;
+        }
+        .interests-section {
+          margin-top: 1.5rem;
+          padding-top: 1.5rem;
+          border-top: 1px solid var(--color-border);
+        }
+        .interests-title {
+          margin: 0 0 0.75rem 0;
+          font-size: 1.1rem;
+          font-weight: 800;
+        }
+        .interests-grid {
+          display: flex;
+          flex-wrap: wrap;
+          gap: 0.5rem;
+        }
+        .interest-tag {
+          display: inline-flex;
+          align-items: center;
+          gap: 0.35rem;
+          padding: 0.3rem 0.7rem;
+          border-radius: 999px;
+          font-size: 0.82rem;
+          font-weight: 600;
+          border: 1px solid transparent;
+        }
+        .interest-tag.strength-love {
+          background: #fff3cd;
+          color: #7a5700;
+          border-color: #f0c040;
+        }
+        .interest-tag.strength-like {
+          background: #e8f4fd;
+          color: #0a558c;
+          border-color: #90c8f0;
+        }
+        .interest-tag.strength-neutral {
+          background: var(--color-page-bg-alt, #f5f5f5);
+          color: var(--color-muted);
+          border-color: var(--color-border);
+        }
+        .badge-dot {
+          display: inline-block;
+          width: 7px;
+          height: 7px;
+          border-radius: 50%;
+          flex-shrink: 0;
+        }
+        .love-dot { background: #d4a017; }
+        .like-dot { background: #2196f3; }
+        .survey-notes {
+          margin: 0.75rem 0 0 0;
+          font-size: 0.88rem;
+          color: var(--color-muted);
+          font-style: italic;
+        }
+        .survey-notes-label {
+          font-style: normal;
+          font-weight: 600;
+          color: var(--nbpa-text-on-light, #222);
+        }
+        .interests-empty {
           margin: 0;
           color: var(--color-muted-light);
           font-size: 0.9rem;

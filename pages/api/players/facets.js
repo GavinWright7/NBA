@@ -10,7 +10,7 @@ function validFacetValue(v) {
 
 export default async function handler(req, res) {
   try {
-    const [teams, positions, heightRange] = await Promise.all([
+    const [teams, positions, heightRange, interestTags] = await Promise.all([
       prisma.player.findMany({
         where: { team: { not: null } },
         select: { team: true },
@@ -27,21 +27,24 @@ export default async function handler(req, res) {
         _min: { heightInches: true },
         _max: { heightInches: true },
       }),
+      prisma.interestTag.findMany({
+        where: { slug: { not: "other" } },
+        select: { slug: true, label: true, category: true },
+        orderBy: [{ category: "asc" }, { label: "asc" }],
+      }),
     ]);
     const teamValues = teams.map((r) => r.team).filter(validFacetValue);
     const positionValues = positions.map((r) => r.position).filter(validFacetValue);
     const positionsGandFOnly = positionValues.filter(
       (p) => p.toUpperCase() !== "C" && !/^center$/i.test(p)
     );
-    res.setHeader(
-      "Cache-Control",
-      "no-store"
-    );
+    res.setHeader("Cache-Control", "no-store");
     return res.status(200).json({
       teams: teamValues,
       positions: positionsGandFOnly,
       minHeightInches: heightRange._min.heightInches ?? 72,
       maxHeightInches: heightRange._max.heightInches ?? 96,
+      interestTags,
     });
   } catch (err) {
     console.error("[api/players/facets]", err);

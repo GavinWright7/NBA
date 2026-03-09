@@ -22,7 +22,7 @@ function skipValue(val) {
 
 export default async function handler(req, res) {
   try {
-    const { q, team, position, minHeight, maxHeight, minFollowers, maxFollowers, sort } = req.query;
+    const { q, team, position, minHeight, maxHeight, minFollowers, maxFollowers, minEngagement, maxEngagement, interestSlug, sort } = req.query;
     const where = {};
     if (q != null && String(q).trim() !== "" && !skipValue(q)) {
       where.name = { contains: String(q).trim(), mode: "insensitive" };
@@ -69,14 +69,66 @@ export default async function handler(req, res) {
       where.followers.lte = maxF;
     }
 
+    const minEng =
+      minEngagement != null && String(minEngagement).trim() !== ""
+        ? parseFloat(String(minEngagement).trim())
+        : null;
+    const maxEng =
+      maxEngagement != null && String(maxEngagement).trim() !== ""
+        ? parseFloat(String(maxEngagement).trim())
+        : null;
+    if (minEng != null && !Number.isNaN(minEng) && minEng >= 0) {
+      where.engagementRate = where.engagementRate || {};
+      where.engagementRate.gte = minEng;
+    }
+    if (maxEng != null && !Number.isNaN(maxEng) && maxEng >= 0) {
+      where.engagementRate = where.engagementRate || {};
+      where.engagementRate.lte = maxEng;
+    }
+
+    const activeSlug =
+      interestSlug != null && !skipValue(interestSlug)
+        ? String(interestSlug).trim()
+        : null;
+
+    if (activeSlug) {
+      where.interests = {
+        some: {
+          tag: { slug: activeSlug },
+          strength: { in: ["love", "like"] },
+        },
+      };
+    }
+
     const orderByKey =
       sort != null && String(sort).trim() !== "" && ALLOWED_ORDER_BY.has(String(sort).trim())
         ? String(sort).trim()
         : "name";
+
+    // When filtering by interest, include the matching row so we can sort + badge by strength
     const players = await prisma.player.findMany({
       where,
       orderBy: { [orderByKey]: "asc" },
+      include: activeSlug
+        ? {
+            interests: {
+              where: { tag: { slug: activeSlug }, strength: { in: ["love", "like"] } },
+              select: { strength: true, score: true },
+              take: 1,
+            },
+          }
+        : undefined,
     });
+
+    // Sort Love (score 3) before Like (score 2) when an interest filter is active
+    if (activeSlug) {
+      players.sort((a, b) => {
+        const sa = a.interests?.[0]?.score ?? 0;
+        const sb = b.interests?.[0]?.score ?? 0;
+        return sb - sa;
+      });
+    }
+
     const season = getCurrentSeason();
     const list = players.map((p) => ({
       id: p.nbaPersonId,
@@ -94,6 +146,7 @@ export default async function handler(req, res) {
       avgLikesRecent: p.avgLikes ?? null,
       avgCommentsRecent: p.avgComments ?? null,
       lastFetchedAt: p.igLastCheckedAt?.toISOString?.() ?? p.instagramUpdatedAt?.toISOString?.() ?? null,
+      interestStrength: p.interests?.[0]?.strength ?? null,
     }));
     res.setHeader("Cache-Control", "no-store");
     return res.status(200).json({
