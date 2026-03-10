@@ -1,0 +1,92 @@
+name: Daily NBA Data Update
+
+on:
+  # Runs every day at 6:00 AM UTC (2:00 AM ET)
+  schedule:
+    - cron: "0 6 * * *"
+
+  # Allow manual trigger from the GitHub Actions tab
+  workflow_dispatch:
+    inputs:
+      skip_social:
+        description: "Skip SocialBlade scraping (roster only)"
+        required: false
+        default: "false"
+        type: boolean
+      force_social:
+        description: "Force re-scrape all social stats (ignore 24h cache)"
+        required: false
+        default: "false"
+        type: boolean
+
+jobs:
+  daily-update:
+    name: NBA Roster + Social Stats Update
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+
+    steps:
+      # ── Checkout ───────────────────────────────────────────────────────────
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      # ── Node.js ────────────────────────────────────────────────────────────
+      - name: Set up Node.js 20
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: "npm"
+
+      # ── Chrome (needed by Selenium for social scraping) ────────────────────
+      - name: Install Chrome
+        uses: browser-actions/setup-chrome@v1
+        id: setup-chrome
+
+      - name: Export Chrome binary path
+        run: echo "CHROME_BIN=${{ steps.setup-chrome.outputs.chrome-path }}" >> $GITHUB_ENV
+
+      # ── Dependencies ───────────────────────────────────────────────────────
+      - name: Install dependencies
+        run: npm ci
+
+      # ── Prisma ─────────────────────────────────────────────────────────────
+      - name: Generate Prisma client
+        run: npx prisma generate
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+
+      # ── Daily Update ───────────────────────────────────────────────────────
+      - name: Run daily update
+        run: |
+          ARGS=""
+          if [ "${{ github.event.inputs.skip_social }}" = "true" ]; then
+            ARGS="$ARGS --skip-social"
+          fi
+          if [ "${{ github.event.inputs.force_social }}" = "true" ]; then
+            ARGS="$ARGS --force-social"
+          fi
+          node scripts/dailyUpdate.js $ARGS
+        env:
+          DATABASE_URL:          ${{ secrets.DATABASE_URL }}
+          SOCIALBLADE_EMAIL:     ${{ secrets.SOCIALBLADE_EMAIL }}
+          SOCIALBLADE_PASSWORD:  ${{ secrets.SOCIALBLADE_PASSWORD }}
+          CI:                    "true"
+
+      # ── Upload debug artifacts if any exist ────────────────────────────────
+      - name: Upload debug screenshots (on failure)
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: debug-screenshots
+          path: data/debug/
+          if-no-files-found: ignore
+          retention-days: 7
+
+      - name: Upload failed CSV (always)
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: failed-social-stats
+          path: data/ig_socialblade_failed.csv
+          if-no-files-found: ignore
+          retention-days: 30
