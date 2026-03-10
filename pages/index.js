@@ -35,6 +35,7 @@ export default function Home() {
   const [minEngagementQuery, setMinEngagementQuery] = useState("");
   const [maxEngagementQuery, setMaxEngagementQuery] = useState("");
   const [interestSlug, setInterestSlug] = useState("");
+  const [partnershipBrand, setPartnershipBrand] = useState("");
   const followersDebounceRef = useRef(null);
   const engagementDebounceRef = useRef(null);
 
@@ -52,6 +53,7 @@ export default function Home() {
     if (minE != null && !Number.isNaN(minE)) params.set("minEngagement", String(minE));
     if (maxE != null && !Number.isNaN(maxE)) params.set("maxEngagement", String(maxE));
     if (interestSlug) params.set("interestSlug", interestSlug);
+    if (partnershipBrand) params.set("partnershipBrand", partnershipBrand);
     const isFullList =
       !search.trim() &&
       !team &&
@@ -60,7 +62,8 @@ export default function Home() {
       maxF == null &&
       minE == null &&
       maxE == null &&
-      !interestSlug;
+      !interestSlug &&
+      !partnershipBrand;
     setLoading(true);
     setError(null);
     fetch(`/api/players?${params.toString()}`)
@@ -80,6 +83,7 @@ export default function Home() {
             teams,
             positions,
             interestTags: prev?.interestTags ?? [],
+            partnershipBrands: prev?.partnershipBrands ?? [],
           }));
         }
       })
@@ -89,7 +93,7 @@ export default function Home() {
       .finally(() => {
         setLoading(false);
       });
-  }, [search, team, position, minFollowersQuery, maxFollowersQuery, minEngagementQuery, maxEngagementQuery, interestSlug]);
+  }, [search, team, position, minFollowersQuery, maxFollowersQuery, minEngagementQuery, maxEngagementQuery, interestSlug, partnershipBrand]);
 
   useEffect(() => {
     if (followersDebounceRef.current) clearTimeout(followersDebounceRef.current);
@@ -123,9 +127,10 @@ export default function Home() {
           teams: f.teams?.length ? f.teams : prev?.teams ?? [],
           positions: f.positions?.length ? f.positions : prev?.positions ?? [],
           interestTags: f.interestTags?.length ? f.interestTags : prev?.interestTags ?? [],
+          partnershipBrands: f.partnershipBrands?.length ? f.partnershipBrands : prev?.partnershipBrands ?? [],
         }));
       })
-      .catch(() => setFacets({ teams: [], positions: [], interestTags: [] }));
+      .catch(() => setFacets({ teams: [], positions: [], interestTags: [], partnershipBrands: [] }));
   }, []);
 
   useEffect(() => {
@@ -248,6 +253,19 @@ export default function Home() {
                 </optgroup>
               ));
             })()}
+          </select>
+          <select
+            className="filter-select filter-select--brand"
+            value={partnershipBrand}
+            onChange={(e) => setPartnershipBrand(e.target.value)}
+            aria-label="Filter by partnership brand"
+          >
+            <option value="">All partnerships</option>
+            {(facets?.partnershipBrands ?? []).map((b) => (
+              <option key={b} value={b}>
+                {b}
+              </option>
+            ))}
           </select>
         </div>
       </header>
@@ -379,6 +397,9 @@ export default function Home() {
         }
         .filter-select--interest {
           min-width: 12rem;
+        }
+        .filter-select--brand {
+          min-width: 11rem;
         }
         .filter-input::-webkit-outer-spin-button,
         .filter-input::-webkit-inner-spin-button {

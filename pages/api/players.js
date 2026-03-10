@@ -22,7 +22,7 @@ function skipValue(val) {
 
 export default async function handler(req, res) {
   try {
-    const { q, team, position, minHeight, maxHeight, minFollowers, maxFollowers, minEngagement, maxEngagement, interestSlug, sort } = req.query;
+    const { q, team, position, minHeight, maxHeight, minFollowers, maxFollowers, minEngagement, maxEngagement, interestSlug, partnershipBrand, sort } = req.query;
     const where = {};
     if (q != null && String(q).trim() !== "" && !skipValue(q)) {
       where.name = { contains: String(q).trim(), mode: "insensitive" };
@@ -84,6 +84,12 @@ export default async function handler(req, res) {
     if (maxEng != null && !Number.isNaN(maxEng) && maxEng >= 0) {
       where.engagementRate = where.engagementRate || {};
       where.engagementRate.lte = maxEng;
+    }
+
+    if (partnershipBrand != null && !skipValue(partnershipBrand)) {
+      where.partnerships = {
+        some: { brand: { equals: String(partnershipBrand).trim(), mode: "insensitive" } },
+      };
     }
 
     const activeSlug =
